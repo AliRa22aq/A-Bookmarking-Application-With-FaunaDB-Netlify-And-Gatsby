@@ -1,42 +1,130 @@
-const { ApolloServer, gql } = require('apollo-server-lambda')
+const { ApolloServer, gql } = require("apollo-server-lambda");
+const faunadb = require('faunadb'),
+  q = faunadb.query;
+
 
 const typeDefs = gql`
   type Query {
-    hello: String
-    allAuthors: [Author!]
-    author(id: Int!): Author
-    authorByName(name: String!): Author
+    bookmarks: [Bookmark!]
   }
-  type Author {
+  type Bookmark {
     id: ID!
-    name: String!
-    married: Boolean!
+    title: String!
+    url: Boolean!
   }
-`
+  # type Mutation {
+  #   addTodo(task: String!): Todo
+  #   deleteTodo(id: ID!): Todo
+  #   updateTodo(status: Boolean! ,id:ID!,task:String!): Todo
+  #   updateCheck(status: Boolean! ,id:ID!,task:String!): Todo
+  # }
+`;
 
-const authors = [
-  { id: 1, name: 'Terry Pratchett', married: false },
-  { id: 2, name: 'Stephen King', married: true },
-  { id: 3, name: 'JK Rowling', married: false },
-]
 
+//
 const resolvers = {
   Query: {
-    hello: () => 'Hello, world!',
-    allAuthors: () => authors,
-    author: () => {},
-    authorByName: (root, args) => {
-      console.log('hihhihi', args.name)
-      return authors.find((author) => author.name === args.name) || 'NOTFOUND'
-    },
+    todos: async (parent, args, context) => {
+      try {
+        var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+        let result = await client.query
+        (
+
+          q.Map(
+            q.Paginate(q.Documents(q.Collection("bookmarks"))),
+             q.Lambda(x => q.Get(x))
+             )      
+
+        );
+       
+        return result.data.map(post => {
+          return {
+            id: post.ref.id,
+            title: post.data.task,
+            url: post.data.status
+          }
+        })
+      } catch (err) {
+        return err.toString();
+      }
+    }
   },
+
+  // Mutation: {
+
+  //   addTodo: async (_, { task }) => {
+  //     console.log(task)
+  //     try {
+  //       var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+  //       let result = await client.query(
+  //         q.Create(
+  //           q.Collection('todos'),
+  //           {
+  //               data: { 
+  //                 task: task,
+  //                 status: true
+  //             } 
+  //           }
+  //         )
+  //       );
+  //       return result.ref.data;
+  //     } catch (err) {
+  //       return err.toString();
+  //     }
+  //   },
+
+  //   deleteTodo: async (_, { id }) => {
+  //     try {
+  //       var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+  //       let result = await client.query(
+  //         q.Delete(
+  //           q.Ref(q.Collection('todos'), id)
+  //         )
+  //       ); 
+  //       return result.ref.data;
+  //     } catch (err) {
+  //       return err.toString();
+  //     }
+  //   },
+
+  //   updateTodo: async (_, {id,task, status }) => {
+  //     try {
+  //       var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+  //       let result = await client.query(
+  //         q.Replace(
+  //           q.Ref(q.Collection('todos'), id),
+  //           { data: { task:task, status: true } },
+  //         )
+  //       );
+  //       return result.ref.data;
+  //     } catch (err) {
+  //       return err.toString();
+  //     }
+  //   },
+
+  //   updateCheck: async (_, {id,task, status }) => {
+  //     try {
+  //       var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+  //       let result = await client.query(
+  //         q.Replace(
+  //           q.Ref(q.Collection('todos'), id),
+  //           { data: { task:task, status: status } },
+  //         )
+  //       );
+  //       return result.ref.data;
+  //     } catch (err) {
+  //       return err.toString();
+  //     }
+  //   },
+  // },
+  
 }
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-})
+  playground: true,
+  introspection: true
+});
 
-const handler = server.createHandler()
-
-module.exports = { handler }
+exports.handler = server.createHandler();
