@@ -10,7 +10,7 @@ const typeDefs = gql`
   type Bookmark {
     id: ID!
     title: String!
-    url: Boolean!
+    url: String!
   }
   # type Mutation {
   #   addTodo(task: String!): Todo
@@ -24,7 +24,7 @@ const typeDefs = gql`
 //
 const resolvers = {
   Query: {
-    todos: async (parent, args, context) => {
+    bookmarks: async (parent, args, context) => {
       try {
         var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
         let result = await client.query
@@ -38,10 +38,11 @@ const resolvers = {
         );
        
         return result.data.map(post => {
+          console.log(post)
           return {
             id: post.ref.id,
-            title: post.data.task,
-            url: post.data.status
+            title: post.data.title,
+            url: post.data.url
           }
         })
       } catch (err) {
