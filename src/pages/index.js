@@ -118,20 +118,6 @@ return (
           )
         })
       }
-
-{/* <Card variant="outlined">
-      <CardContent>
-        <Typography color="textSecondary" gutterBottom>
-        {post.title}
-        </Typography>
-        <Typography variant="h6" component="h2">
-        <a href={post.url} > {post.url} </a>
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button size="small" onClick = {()=> {handleDelete(post.id)}}> Delete </Button>
-      </CardActions>
-    </Card> */}
     
     </div>)
 }
