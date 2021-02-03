@@ -80,7 +80,7 @@ return (
            <Grid container spacing={0} className="container"> 
            <Grid itme xs={10}>
            <Field as= {TextField} fullWidth required name="title" placeholder="Enter title here" label="Title" /> <br />
-           <Field as= {TextField} fullWidth required name="url"  placeholder="Enter URL here" label="URL" /> <br />
+           <Field as= {TextField} fullWidth required name="url" type='url'  placeholder="Enter URL here" label="URL" /> <br />
            </Grid>
            <Grid item xs={2} className="btn" > 
            <Button type="submit" variant="contained" color="primary"> Add </Button> <br />
