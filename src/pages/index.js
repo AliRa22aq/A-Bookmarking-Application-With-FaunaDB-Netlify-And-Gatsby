@@ -2,14 +2,15 @@ import React, { useState } from "react"
 import { useQuery, useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import { Formik, Form,  Field, ErrorMessage} from 'formik';
-import { Button } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 import {TextField} from '@material-ui/core'
-
-
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-
-
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
+import './main.css'
+import DeleteSharpIcon from '@material-ui/icons/DeleteSharp';
 
 const GET_BOOKMARKS = gql`
 {
@@ -20,7 +21,6 @@ const GET_BOOKMARKS = gql`
     }
 }
 `;
-
 
 const AddBookMarkMutation = gql`
   mutation addBookmark($title: String!, $url: String!){
@@ -38,31 +38,12 @@ const DELETE_BOOKMARK = gql`
         }
     }`
 
-
-
-
 export default function Home() {
 
 const { loading, error, data } = useQuery(GET_BOOKMARKS);
 const [addBookmark] = useMutation(AddBookMarkMutation)
 
-// var title;
-// var url;
-
-// const handleSubmit = () => {
-// addBookmark({
-//     variables: {
-//       title: title.value,
-//       url: url.value
-//     },
-//   refetchQueries: [{query:GET_BOOKMARKS}],
-//  })
-// }
-
-
-
 const [deleteBookmark] = useMutation(DELETE_BOOKMARK);
-
 const handleDelete = (id) => {
   deleteBookmark({
     variables: {
@@ -74,33 +55,11 @@ const handleDelete = (id) => {
 }
 
 
-
 if(loading) return <h1> <CircularProgress /> </h1>
 if(error) return  <h1> {error.message} </h1>
 
-  return (
-    <div>
-
-    {/* Hello world!
-    <br />
-    <input type="text" placeholder="Title" ref={node => title=node} />
-    <br />
-    <input type="url" placeholder="URL" ref={node => url=node} />
-    <br />
-    <button onClick={handleSubmit}>Add</button>
-    <br />
-
-      {
-        data.bookmarks.map((post, ind) => {
-          return (
-            <div key = {ind}>
-          <h4> {post.title} </h4>
-          <h4> {post.url} </h4>
-          <button onClick = {()=> {handleDelete(post.id)}} > Delete </button>
-            </div>
-          )
-        })
-      } */}
+return (
+<div >
 
 <h1>The best Bookmark app!</h1>
      <Formik
@@ -118,9 +77,15 @@ if(error) return  <h1> {error.message} </h1>
      >
        {() => (
          <Form>
-           <Field as= {TextField} required name="title" placeholder="Enter title here" label="Title" />
-           <Field name="url" type="url" label="Enter URL here" />
-           <Button type="submit" variant="contained" color="primary"> Add </Button>
+           <Grid container spacing={0} className="container"> 
+           <Grid itme xs={10}>
+           <Field as= {TextField} fullWidth required name="title" placeholder="Enter title here" label="Title" /> <br />
+           <Field as= {TextField} fullWidth required name="url"  placeholder="Enter URL here" label="URL" /> <br />
+           </Grid>
+           <Grid item xs={2} className="btn" > 
+           <Button type="submit" variant="contained" color="primary"> Add </Button> <br />
+           </Grid>
+           </Grid>
          </Form>
        )}
      </Formik>
@@ -128,14 +93,45 @@ if(error) return  <h1> {error.message} </h1>
      {
         data.bookmarks.map((post, ind) => {
           return (
-            <div key = {ind}>
-          <h4> {post.title} </h4>
-          <h4> <a href={post.url} > {post.url} </a> </h4>
-          <button onClick = {()=> {handleDelete(post.id)}} > Delete </button>
-            </div>
+              
+              <Card variant="outlined" className="cardContainer">
+                <Grid container> 
+                <Grid item xs={10}> 
+                <CardContent>
+                  
+                  <Typography color="textSecondary" gutterBottom>
+                   {`Title: ${post.title}`} 
+                  </Typography>
+                  <Typography variant="h6" component="h2">
+                   URL: <a href={post.url} > {post.url} </a>                    
+                  </Typography>
+                  </CardContent>
+                </Grid>
+                <Grid item xs={2}> 
+                <CardActions className="dlt-btn">
+                   <Button size="small" variant="contained" color="secondary" onClick={() => { handleDelete(post.id) }}> <DeleteSharpIcon /> </Button>
+                   
+                </CardActions>
+                </Grid>
+                </Grid>
+              </Card>
           )
         })
       }
+
+{/* <Card variant="outlined">
+      <CardContent>
+        <Typography color="textSecondary" gutterBottom>
+        {post.title}
+        </Typography>
+        <Typography variant="h6" component="h2">
+        <a href={post.url} > {post.url} </a>
+        </Typography>
+      </CardContent>
+      <CardActions>
+        <Button size="small" onClick = {()=> {handleDelete(post.id)}}> Delete </Button>
+      </CardActions>
+    </Card> */}
     
     </div>)
 }
