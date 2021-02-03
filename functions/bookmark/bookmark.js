@@ -12,12 +12,12 @@ const typeDefs = gql`
     title: String!
     url: String!
   }
-  # type Mutation {
-  #   addTodo(task: String!): Todo
-  #   deleteTodo(id: ID!): Todo
-  #   updateTodo(status: Boolean! ,id:ID!,task:String!): Todo
-  #   updateCheck(status: Boolean! ,id:ID!,task:String!): Todo
-  # }
+  type Mutation {
+    addBookmark(title: String!, url: String!): Bookmark
+    deleteBookmark(id: ID!): Bookmark
+    # updateTodo(status: Boolean! ,id:ID!,task:String!): Todo
+    # updateCheck(status: Boolean! ,id:ID!,task:String!): Todo
+  }
 `;
 
 
@@ -38,7 +38,6 @@ const resolvers = {
         );
        
         return result.data.map(post => {
-          console.log(post)
           return {
             id: post.ref.id,
             title: post.data.title,
@@ -51,42 +50,45 @@ const resolvers = {
     }
   },
 
-  // Mutation: {
+  Mutation: {
 
-  //   addTodo: async (_, { task }) => {
-  //     console.log(task)
-  //     try {
-  //       var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
-  //       let result = await client.query(
-  //         q.Create(
-  //           q.Collection('todos'),
-  //           {
-  //               data: { 
-  //                 task: task,
-  //                 status: true
-  //             } 
-  //           }
-  //         )
-  //       );
-  //       return result.ref.data;
-  //     } catch (err) {
-  //       return err.toString();
-  //     }
-  //   },
+    addBookmark: async (_, { title, url }) => {
+      console.log(title)
+      console.log(url)
+      try {
+        var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+        let result = await client.query(
+          q.Create(
+            q.Collection('bookmarks'),
+            {
+                data: { 
+                  title,
+                  url
+              } 
+            }
+          )
+        );
+        return result.ref.data;
+      } catch (err) {
+        return err.toString();
+      }
+    },
 
-  //   deleteTodo: async (_, { id }) => {
-  //     try {
-  //       var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
-  //       let result = await client.query(
-  //         q.Delete(
-  //           q.Ref(q.Collection('todos'), id)
-  //         )
-  //       ); 
-  //       return result.ref.data;
-  //     } catch (err) {
-  //       return err.toString();
-  //     }
-  //   },
+    deleteBookmark: async (_, { id }) => {
+      console.log(id)
+
+      try {
+        var client = new faunadb.Client({ secret: 'fnAEAo3H5NACCMfVfQwTQTU6Eud19BijlajOv0XR' });
+        let result = await client.query(
+          q.Delete(
+            q.Ref(q.Collection('bookmarks'), id)
+          )
+        ); 
+        return result.ref.data;
+      } catch (err) {
+        return err.toString();
+      }
+    },
 
   //   updateTodo: async (_, {id,task, status }) => {
   //     try {
@@ -117,7 +119,7 @@ const resolvers = {
   //       return err.toString();
   //     }
   //   },
-  // },
+  },
   
 }
 
